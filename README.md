@@ -27,8 +27,8 @@ class RolesSerializer(serializers.Serializer):
 ```
 - 字段
     - ``title = serializers.CharField(source='xx.xx.xx.xx')``
-	- 自定义方法``title = serializers.SerializerMethodField()``
-	- 自定义类
+    - 自定义方法``title = serializers.SerializerMethodField()``
+    - 自定义类
 
 ```
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -136,7 +136,7 @@ urlpatterns = [
 
 ![Untitled-1-2018423201026](http://p693ase25.bkt.clouddn.com/Untitled-1-2018423201026.png)
 
-![Untitled-1-2018423201525](http://p693ase25.bkt.clouddn.com/Untitled-1-2018423201525.png)
+![Untitled-1-2018423221514](http://p693ase25.bkt.clouddn.com/Untitled-1-2018423221514.png)
 
 ###### 序列化
 - 从ser.data开始，data（）因为使用了property装饰器，所以调用的时候不需要些括号，data（）里调用了父类Serializer的data（），返回一个有序字典
