@@ -6,6 +6,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.urls import reverse
 from rest_framework.parsers import JSONParser, FormParser
+from rest_framework.serializers import ListSerializer
 from rest_framework.views import APIView
 from rest_framework.request import Request
 
@@ -202,7 +203,15 @@ class UserinfoView(APIView):
         # - 对象，Serializer类处理  self.to_representation（）
         # - QuerySet，是使用ListSerializer类处理  self.to_representation()
         # users要么是一个对象，要么就是QuerySet
+
+        # 1.实例化，一般是将数据封装到对象，__new__()方法返回的是对象,然后执行返回值的__init__
+        '''
+       many=True ,接下来执行ListSerializer对象的构造方法，
+       many=False, 接下来执行UserInfoSerializer对象的构造方法 
+       '''
+        ListSerializer
         ser = UserInfoSerializer(instance=users,many=True,context={'request':request})
+        # 2.调用对象的data属性
         print(ser.data)
         ret = json.dumps(ser.data,ensure_ascii=False)
         return HttpResponse(ret)
@@ -249,7 +258,13 @@ class XValidator(object):
 
 class UserGroupSerializer(serializers.Serializer):
     title = serializers.CharField(error_messages={'required':'标题不能为空'},validators=[XValidator('老女人'),])
-
+    def validate_title(self,value):
+        print(value)
+        # 如果验证不通过
+        # from rest_framework import exceptions
+        # raise exceptions.ValidationError('看你不顺眼')
+        # 验证通过
+        return value
 
 class UserGroupView(APIView):
     def post(self,request,*args,**kwargs):
