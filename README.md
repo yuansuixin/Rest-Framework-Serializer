@@ -71,60 +71,8 @@ class UserInfoSerializer(serializers.ModelSerializer):
 
 - 自动序列化连表操作
 
-```
-class UserInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.UserInfo
-        # fields = '__all__'
-        # fields = ['id','username','password','oooo','rls','group']
-        depth = 1 # 表示往里面拿几层数据，默认是0，建议0-3之间
-
-```
 - 生成链接
 
-```
-class UserInfoSerializer(serializers.ModelSerializer):
-    # 反向生成url,lookup_url_kwarg指的是url中的那个参数的值
-    group = serializers.HyperlinkedIdentityField(view_name='gp',lookup_field='group_id',lookup_url_kwarg='pk')
-    class Meta:
-        model = models.UserInfo
-        # fields = '__all__'
-        fields = ['id','username','password','oooo','rls','group']
-        # depth = 1 # 表示往里面拿几层数据，默认是0，建议0-3之间
-
-
-class UserinfoView(APIView):
-    def get(self,request):
-        users = models.UserInfo.objects.all()
-        ser = UserInfoSerializer(instance=users,many=True,context={'request':request})
-        print(ser.data)
-        ret = json.dumps(ser.data,ensure_ascii=False)
-        return HttpResponse(ret)
-
-
-class GroupSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.UserGroup
-        fields = '__all__'
-
-
-class GroupView(APIView):
-    def get(self,request,*args,**kwargs):
-        pk = kwargs.get('pk')
-        obj = models.UserGroup.objects.filter(pk=pk).first()
-        ser = GroupSerializer(instance=obj,many=False)
-        ret = json.dumps(ser.data,ensure_ascii=False)
-        return HttpResponse(ret)
-
-```
-
-```
-urlpatterns = [
- url(r'^(?P<version>[v1|v2]+)/userinfo/$',views.UserinfoView.as_view(),name='userinfo'),
- url(r'^(?P<version>[v1|v2]+)/group/(?P<pk>\d+)$',views.GroupView.as_view(),name='gp'),
-
-]
-```
 
 > 源码分析
 
@@ -167,56 +115,11 @@ urlpatterns = [
     - 类实例化的时候，先执行__new__(),才会执行__init__()方法
     - callback（），isinstance（）
 
-```
-def func(arg):
-# 判断传入的参数是否是可执行的，也就是是不是函数类型
-    #if callbale(arg):
-    if isinstance(arg,types.FunctionType):
-        print(arg())
-    else:
-        print(arg)
 
-func(123)
-func(lambda:'666')
-```
 
 ### 请求数据校验
 
-```
-# 自定义验证规则
-class XValidator(object):
-    def __init__(self,base):
-        self.base = base
-    def __call__(self,value):
-        if not value.startswith(self.base):
-            message = '标题必须以%s开头'%self.base
-            raise serializers.ValidationError(message)
 
-    def set_context(self, serializer_field):
-        """
-        This hook is called by the serializer instance,
-        prior to the validation call being made.
-        """
-        # 执行验证之前调用,serializer_fields是当前字段对象
-        pass
-
-
-class UserGroupSerializer(serializers.Serializer):
-    title = serializers.CharField(error_messages={'required':'标题不能为空'},validators=[XValidator('老女人'),])
-
-
-class UserGroupView(APIView):
-    def post(self,request,*args,**kwargs):
-        print(request.data)
-        ser = UserGroupSerializer(data=request.data)
-        # 数据校验，
-        if ser.is_valid():
-            print(ser.validated_data)
-        else:
-            print(ser.errors)
-        return HttpResponse('提交数据')
-
-```
 
 - 源码分析
     - 先进行实例化，然后从is_valid()开始，
@@ -228,25 +131,9 @@ class UserGroupView(APIView):
     - 如果找到了`validate_字段名`值，加了个括号，直接执行
     - 然后执行验证的钩子方法，在序列化验证的时候我们就可以定义一个`validate_字段名`方法，如果验证成功直接返回值，验证不通过抛出ValidationError
 
-```
-class UserGroupSerializer(serializers.Serializer):
-    title = serializers.CharField(error_messages={'required':'标题不能为空'},validators=[XValidator('老女人'),])
-    def validate_title(self,value):
-        print(value)
-        # 如果验证不通过
-        # from rest_framework import exceptions
-        # raise exceptions.ValidationError('看你不顺眼')
-        # 验证通过
-        return value
 
-class UserGroupView(APIView):
-    def post(self,request,*args,**kwargs):
-        print(request.data)
-        ser = UserGroupSerializer(data=request.data)
-        # 数据校验，
-        if ser.is_valid():
-            print(ser.validated_data)
-        else:
-            print(ser.errors)
-        return HttpResponse('提交数据')
-```
+
+## 中文文档
+
+[restful序列化文档](https://yuansuixin.github.io/2017/11/23/rest-serializer/ "详细解析")
+
